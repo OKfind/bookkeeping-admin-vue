@@ -1,25 +1,7 @@
 <template>
-  <view class="index-page">
-    <wd-button type="primary" @click="handleClick">Wot Design Uni 按钮</wd-button>
+  <view class="min-h-screen flex items-center justify-center bg-[#f6f7fb]">
+    <navigator url="/pages/login/index" class="text-[#22c55e] text-28rpx">
+      前往登录页
+    </navigator>
   </view>
 </template>
-
-<script setup lang="ts">
-function handleClick() {
-  uni.showToast({
-    title: '项目启动成功！',
-    icon: 'success',
-  })
-}
-</script>
-
-<style lang="scss">
-.index-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 0 32rpx;
-  background: #f6f7fb;
-}
-</style>
