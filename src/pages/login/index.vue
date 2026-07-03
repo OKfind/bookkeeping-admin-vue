@@ -37,15 +37,15 @@
       }"
     >
       <view class="pt-48rpx">
-        <!-- 手机号 -->
+        <!-- 用户名 -->
         <view class="mb-36rpx">
           <text class="text-[#1f2937] text-28rpx font-semibold mb-16rpx block"
-            >手机号</text
+            >用户名</text
           >
           <view class="border-b border-[#e5e7eb] pb-16rpx">
             <wd-input
               v-model="form.account"
-              placeholder="请输入您的手机号"
+              placeholder="请输入您的用户名"
               :custom-style="{ padding: 0 }"
               custom-class="login-input"
             />
