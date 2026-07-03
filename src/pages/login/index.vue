@@ -141,6 +141,7 @@
 </template>
 
 <script setup lang="ts">
+import { ApiUserLogin } from "@/api/user";
 import { reactive } from "vue";
 
 const form = reactive({
@@ -149,16 +150,29 @@ const form = reactive({
   remember: true,
 });
 
-function handleAccountLogin() {
+async function handleAccountLogin() {
   if (!form.account.trim()) {
-    uni.showToast({ title: "请输入手机号", icon: "none" });
+    uni.showToast({ title: "请输入用户名", icon: "none" });
     return;
   }
   if (!form.password) {
     uni.showToast({ title: "请输入密码", icon: "none" });
     return;
   }
-  uni.showToast({ title: "登录成功", icon: "success" });
+
+  try {
+    const res = await ApiUserLogin({
+      username: form.account,
+      password: form.password,
+    });
+    if (res.code === 200) {
+      uni.setStorageSync("token", res.data.token);
+      uni.showToast({ title: "登录成功", icon: "success" });
+    }
+  } catch (error) {
+    uni.showToast({ title: "登录失败", icon: "none" });
+    return;
+  }
 }
 
 function handleRegister() {
