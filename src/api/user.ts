@@ -1,38 +1,32 @@
 export interface ResUserInfo {
-  userId: string
-  username: string
-  avatar: string
-  phone: string
-  email: string
-  createTime: string
+  id: number;
+  username: string;
+  nickname: string;
+  email: string;
+  phone: string;
+  userPic?: string;
+  openid?: string;
+  deleted: number;
+  createTime: string;
+  updateTime: string;
 }
 
 /**
  * 获取用户信息
  */
 export function ApiGetUserInfo() {
-  return $api.get<ResUserInfo>('/user/info')
-}
-
-export interface ReqUpdateUserInfo {
-  username?: string
-  avatar?: string
-  phone?: string
-  email?: string
-}
-
-/**
- * 更新用户信息
- * @param params
- */
-export function ApiUpdateUserInfo(params: ReqUpdateUserInfo) {
-  return $api.put('/user/info', params)
+  return $api.get<ResUserInfo>("/user");
 }
 
 export interface ReqUserLoginParams {
-	username: string;
-	password: string;
+  username: string;
+  password: string;
 }
-export function ApiUserLogin(params: ReqUserLoginParams){
-  return $api.post('/user/login', params)
+export function ApiUserLogin(params: ReqUserLoginParams) {
+  return $api.post("/user/login", params);
+}
+
+/* 微信一键登录 */
+export function ApiWxLogin(code: string) {
+  return $api.post("/wx/login", { code });
 }

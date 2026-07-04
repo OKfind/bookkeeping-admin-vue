@@ -129,19 +129,13 @@
         >
           <text class="text-white text-40rpx">💬</text>
         </view>
-        <view
-          class="flex-center w-96rpx h-96rpx rounded-full bg-[#4f6ef7]"
-          @click="handleQQLogin"
-        >
-          <text class="text-white text-40rpx">🐧</text>
-        </view>
       </view>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ApiUserLogin } from "@/api/user";
+import { ApiUserLogin, ApiWxLogin } from "@/api/user";
 import { reactive } from "vue";
 
 const form = reactive({
@@ -168,6 +162,7 @@ async function handleAccountLogin() {
     if (res.code === 200) {
       uni.setStorageSync("token", res.data.token);
       uni.showToast({ title: "登录成功", icon: "success" });
+      setTimeout(() => uni.reLaunch({ url: "/pages/index/index" }), 1500);
     }
   } catch (error) {
     uni.showToast({ title: "登录失败", icon: "none" });
@@ -176,18 +171,37 @@ async function handleAccountLogin() {
 }
 
 function handleRegister() {
-  uni.showToast({ title: "跳转到注册页", icon: "none" });
+  uni.navigateTo({ url: "/pages/register/index" });
 }
 
-function handleWechatLogin() {
+async function handleWechatLogin() {
   uni.showLoading({ title: "微信授权中..." });
-  setTimeout(() => {
-    uni.hideLoading();
-    uni.showToast({ title: "微信登录成功", icon: "success" });
-  }, 1500);
-}
 
-function handleQQLogin() {
-  uni.showToast({ title: "QQ登录", icon: "none" });
+  try {
+    // 获取微信 code
+    const loginRes = await new Promise<any>((resolve, reject) => {
+      uni.login({
+        provider: "weixin",
+        success: (res) => resolve(res),
+        fail: (err) => reject(err),
+      });
+    });
+
+    // 调用后端微信登录接口
+    const res = await ApiWxLogin(loginRes.code);
+    if (res.code === 200) {
+      uni.setStorageSync("token", res.data.token);
+      uni.hideLoading();
+      uni.showToast({ title: "微信登录成功", icon: "success" });
+      // 跳转到首页
+      setTimeout(() => uni.reLaunch({ url: "/pages/index/index" }), 1500);
+    } else {
+      uni.hideLoading();
+      uni.showToast({ title: res.msg || "微信登录失败", icon: "none" });
+    }
+  } catch (error) {
+    uni.hideLoading();
+    uni.showToast({ title: "微信登录失败", icon: "none" });
+  }
 }
 </script>
