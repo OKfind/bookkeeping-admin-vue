@@ -1,9 +1,6 @@
 {
   "easycom": {
-    "autoscan": true,
-    "custom": {
-      "^wd-(.*)": "wot-design-uni/components/wd-$1/wd-$1.vue"
-    }
+    "autoscan": true
   },
   "pages": [
     {
@@ -18,6 +15,12 @@
       "style": {
         "navigationBarTitleText": "注册",
         "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/test/index",
+      "style": {
+        "navigationBarTitleText": "测试"
       }
     },
     {

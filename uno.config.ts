@@ -1,28 +1,16 @@
-import { defineConfig, presetAttributify, presetUno } from 'unocss'
-import { presetApplet, presetRemRpx, transformerAttributify } from 'unocss-applet'
+import { uniappConfig } from '@lincy/unocss-base-config'
+import { defineConfig } from 'unocss'
+
+const base = uniappConfig({
+  baseFontSize: 1,
+  unti: 'rpx',
+}, {
+  deleteAttributes: false,
+})
 
 export default defineConfig({
+  ...base,
   presets: [
-    presetUno(),
-    presetAttributify(),
-    presetApplet(),
-    presetRemRpx(),
+    ...(base.presets || []),
   ],
-  transformers: [
-    transformerAttributify(),
-  ],
-  shortcuts: {
-    'page-fill': 'min-h-screen bg-[#f6f7fb] text-[#1f2937]',
-    'safe-x': 'px-32rpx',
-    'flex-center': 'flex items-center justify-center',
-  },
-  theme: {
-    colors: {
-      brand: {
-        DEFAULT: '#22c55e',
-        deep: '#16a34a',
-        soft: '#dcfce7',
-      },
-    },
-  },
 })

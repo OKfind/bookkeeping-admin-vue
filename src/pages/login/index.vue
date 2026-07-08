@@ -1,133 +1,101 @@
 <template>
-  <view class="page-fill">
+  <view class="min-h-100vh bg-[#f6f7fb]">
     <!-- 顶部蓝色渐变区域 -->
     <view
-      class="relative pt-40rpx px-48rpx pb-120rpx overflow-hidden"
+      class="relative px-[56rpx] pt-[140rpx]"
       :style="{
-        background:
-          'linear-gradient(135deg, #4f6ef7 0%, #6b8cff 50%, #8da4ff 100%)',
+        height: '440rpx',
+        background: 'linear-gradient(135deg, #3b5fe0, #5a7ef5, #8aa4ff)',
       }"
     >
-      <view
-        class="status-space"
-        :style="{ height: 'var(--status-bar-height)' }"
-      />
-
-      <view class="mt-40rpx">
-        <text class="text-white text-48rpx font-bold leading-[1.4] block"
-          >您好，</text
-        >
-        <text class="text-white text-48rpx font-bold leading-[1.4] block"
-          >欢迎使用Hugo记账</text
-        >
+      <view class="flex flex-col gap-[16rpx]">
+        <text class="text-[48rpx] font-bold text-white">您好，</text>
+        <text class="text-[40rpx] font-bold text-white">欢迎使用千贝记账</text>
       </view>
-
-      <!-- 背景装饰圆 -->
+      <!-- 底部白色弧形 -->
       <view
-        class="absolute -right-40rpx -bottom-40rpx w-320rpx h-320rpx rounded-full opacity-20"
-        :style="{ background: '#fff' }"
+        class="absolute left-0 right-0 bg-white"
+        :style="{
+          bottom: '-2rpx',
+          height: '50rpx',
+          borderRadius: '36rpx 36rpx 0 0',
+        }"
       />
     </view>
 
-    <!-- 白色卡片表单区域 -->
+    <!-- 白色表单卡片 -->
     <view
-      class="relative mx-32rpx -mt-80rpx bg-white rounded-24rpx px-48rpx pb-48rpx"
-      :style="{
-        boxShadow: '0 8rpx 40rpx rgba(79, 110, 247, 0.12)',
-      }"
+      class="-mt-[16rpx] mx-[32rpx] bg-white px-[48rpx] pt-[48rpx] pb-[56rpx] relative z-1"
+      style="border-radius: 36rpx 36rpx 0 0"
     >
-      <view class="pt-48rpx">
-        <!-- 用户名 -->
-        <view class="mb-36rpx">
-          <text class="text-[#1f2937] text-28rpx font-semibold mb-16rpx block"
-            >用户名</text
-          >
-          <view class="border-b border-[#e5e7eb] pb-16rpx">
-            <wd-input
-              v-model="form.account"
-              placeholder="请输入您的用户名"
-              :custom-style="{ padding: 0 }"
-              custom-class="login-input"
-            />
-          </view>
-        </view>
-
-        <!-- 密码 -->
-        <view class="mb-36rpx">
-          <text class="text-[#1f2937] text-28rpx font-semibold mb-16rpx block"
-            >密码</text
-          >
-          <view class="border-b border-[#e5e7eb] pb-16rpx">
-            <wd-input
-              v-model="form.password"
-              placeholder="请输入您的密码"
-              show-password
-              :custom-style="{ padding: 0 }"
-              custom-class="login-input"
-            />
-          </view>
-        </view>
-
-        <!-- 记住密码 -->
-        <view class="flex items-center mb-48rpx">
-          <wd-checkbox v-model="form.remember" shape="square"
-            >记住密码</wd-checkbox
-          >
-        </view>
-
-        <!-- 登录按钮 -->
-        <wd-button
-          block
-          size="large"
-          :custom-style="{
-            background: '#4f6ef7',
-            borderColor: '#4f6ef7',
-            color: '#fff',
-            borderRadius: '48rpx',
-            height: '96rpx',
-            fontSize: '32rpx',
-            fontWeight: '600',
-          }"
-          @click="handleAccountLogin"
+      <!-- 用户名 -->
+      <view class="mb-[36rpx]">
+        <text class="block text-[32rpx] font-bold text-[#333] mb-[20rpx]"
+          >用户名</text
         >
-          登录
-        </wd-button>
+        <wd-input
+          v-model="username"
+          placeholder="请输入您的用户名"
+          :type="'text'"
+          :custom-style="'border-bottom: 1rpx solid #eee'"
+        />
+      </view>
 
-        <!-- 注册按钮 -->
+      <!-- 密码 -->
+      <view class="mb-[24rpx]">
+        <text class="block text-[32rpx] font-bold text-[#333] mb-[20rpx]"
+          >密码</text
+        >
+        <wd-input
+          v-model="password"
+          placeholder="请输入您的密码"
+          show-password
+          :custom-style="'border-bottom: 1rpx solid #eee'"
+        />
+      </view>
+
+      <!-- 记住密码 -->
+      <view class="mt-[8rpx] mb-[48rpx]">
+        <wd-checkbox v-model="remember" shape="square">记住密码</wd-checkbox>
+      </view>
+
+      <!-- 按钮组 -->
+      <view class="flex flex-col gap-[24rpx]">
         <wd-button
-          block
+          type="primary"
           size="large"
-          :custom-style="{
-            background: '#f0f2ff',
-            borderColor: 'transparent',
-            color: '#4f6ef7',
-            borderRadius: '48rpx',
-            height: '96rpx',
-            fontSize: '32rpx',
-            fontWeight: '600',
-            marginTop: '24rpx',
-          }"
+          block
+          :custom-style="'border-radius: 999rpx; height: 96rpx; font-size: 34rpx; font-weight: bold'"
+          @click="handleLogin"
+          >登录</wd-button
+        >
+        <wd-button
+          size="large"
+          block
+          :custom-style="'background: #f0f2f8; color: #333; border: none; border-radius: 999rpx; height: 96rpx; font-size: 34rpx'"
           @click="handleRegister"
+          >注册</wd-button
         >
-          注册
-        </wd-button>
       </view>
     </view>
 
     <!-- 第三方登录 -->
-    <view class="mt-80rpx px-48rpx">
-      <view class="flex items-center gap-24rpx mb-48rpx">
-        <view class="h-1rpx flex-1 bg-[#e5e7eb]" />
-        <text class="text-[#9ca3af] text-24rpx">第三方登录</text>
-        <view class="h-1rpx flex-1 bg-[#e5e7eb]" />
+    <view class="mt-[100rpx] px-[60rpx]">
+      <view class="flex items-center gap-[24rpx]">
+        <view class="flex-1 h-[1rpx] bg-[#ddd]" />
+        <text class="text-[26rpx] text-[#aaa]">第三方登录</text>
+        <view class="flex-1 h-[1rpx] bg-[#ddd]" />
       </view>
-
-      <view class="flex items-center justify-center gap-120rpx">
+      <view class="flex justify-center gap-[100rpx] mt-[48rpx]">
         <view
-          class="flex-center w-96rpx h-96rpx rounded-full bg-[#4f6ef7]"
-          @click="handleWechatLogin"
+          class="w-[100rpx] h-[100rpx] rounded-full bg-[#3b5fe0] flex items-center justify-center"
         >
-          <text class="text-white text-40rpx">💬</text>
+          <text class="text-[24rpx] text-white">微信</text>
+        </view>
+        <view
+          class="w-[100rpx] h-[100rpx] rounded-full bg-[#3b5fe0] flex items-center justify-center"
+        >
+          <text class="text-[24rpx] text-white">QQ</text>
         </view>
       </view>
     </view>
@@ -135,73 +103,25 @@
 </template>
 
 <script setup lang="ts">
-import { ApiUserLogin, ApiWxLogin } from "@/api/user";
-import { reactive } from "vue";
+import { ref } from "vue";
 
-const form = reactive({
-  account: "",
-  password: "",
-  remember: true,
-});
+const username = ref("");
+const password = ref("");
+const remember = ref(false);
 
-async function handleAccountLogin() {
-  if (!form.account.trim()) {
+const handleLogin = () => {
+  if (!username.value) {
     uni.showToast({ title: "请输入用户名", icon: "none" });
     return;
   }
-  if (!form.password) {
+  if (!password.value) {
     uni.showToast({ title: "请输入密码", icon: "none" });
     return;
   }
+  uni.showToast({ title: "登录成功", icon: "success" });
+};
 
-  try {
-    const res = await ApiUserLogin({
-      username: form.account,
-      password: form.password,
-    });
-    if (res.code === 200) {
-      uni.setStorageSync("token", res.data.token);
-      uni.showToast({ title: "登录成功", icon: "success" });
-      setTimeout(() => uni.reLaunch({ url: "/pages/index/index" }), 1500);
-    }
-  } catch (error) {
-    uni.showToast({ title: "登录失败", icon: "none" });
-    return;
-  }
-}
-
-function handleRegister() {
+const handleRegister = () => {
   uni.navigateTo({ url: "/pages/register/index" });
-}
-
-async function handleWechatLogin() {
-  uni.showLoading({ title: "微信授权中..." });
-
-  try {
-    // 获取微信 code
-    const loginRes = await new Promise<any>((resolve, reject) => {
-      uni.login({
-        provider: "weixin",
-        success: (res) => resolve(res),
-        fail: (err) => reject(err),
-      });
-    });
-
-    // 调用后端微信登录接口
-    const res = await ApiWxLogin(loginRes.code);
-    if (res.code === 200) {
-      uni.setStorageSync("token", res.data.token);
-      uni.hideLoading();
-      uni.showToast({ title: "微信登录成功", icon: "success" });
-      // 跳转到首页
-      setTimeout(() => uni.reLaunch({ url: "/pages/index/index" }), 1500);
-    } else {
-      uni.hideLoading();
-      uni.showToast({ title: res.msg || "微信登录失败", icon: "none" });
-    }
-  } catch (error) {
-    uni.hideLoading();
-    uni.showToast({ title: "微信登录失败", icon: "none" });
-  }
-}
+};
 </script>
