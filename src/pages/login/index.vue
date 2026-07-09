@@ -148,12 +148,13 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { ApiPostUserLogin, ApiGetUserInfo } from "@/api/user";
 
 const username = ref("");
 const password = ref("");
 const remember = ref(false);
 
-const handleLogin = () => {
+const handleLogin = async () => {
   if (!username.value) {
     uni.showToast({ title: "请输入用户名", icon: "none" });
     return;
@@ -162,7 +163,35 @@ const handleLogin = () => {
     uni.showToast({ title: "请输入密码", icon: "none" });
     return;
   }
-  uni.showToast({ title: "登录成功", icon: "success" });
+
+  uni.showLoading({ title: "登录中..." });
+  try {
+    const res = await ApiPostUserLogin({
+      username: username.value,
+      password: password.value,
+    });
+    if (res.code === 200) {
+      uni.setStorageSync("token", res.data);
+
+      // 获取用户基本信息
+      const userRes = await ApiGetUserInfo();
+      if (userRes.code === 200) {
+        uni.setStorageSync("userInfo", userRes.data);
+      }
+
+      uni.hideLoading();
+      uni.showToast({ title: "登录成功", icon: "success" });
+      setTimeout(() => {
+        uni.reLaunch({ url: "/pages/index/index" });
+      }, 1500);
+    } else {
+      uni.hideLoading();
+      uni.showToast({ title: res.msg || "登录失败", icon: "none" });
+    }
+  } catch (err) {
+    uni.hideLoading();
+    uni.showToast({ title: "网络异常，请稍后重试", icon: "none" });
+  }
 };
 
 const handleRegister = () => {
