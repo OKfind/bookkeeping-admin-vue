@@ -5,6 +5,7 @@ declare type StringObj<T = any> = Record<string, T>
 declare interface ResponseData<T> {
   data: T
   code: number
+  message: string
   msg: string
 }
 

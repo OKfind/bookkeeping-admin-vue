@@ -42,16 +42,15 @@
         border: 1rpx solid rgba(0, 0, 0, 0.03);
       "
     >
-      <!-- 手机号 -->
+      <!-- 用户名 -->
       <view class="mb-[32rpx]">
         <text class="block text-[30rpx] font-bold text-[#333] mb-[16rpx]"
-          >手机号</text
+          >用户名</text
         >
         <wd-input
-          v-model="phone"
-          placeholder="请输入您的手机号"
-          :type="'number'"
-          :maxlength="11"
+          v-model="username"
+          placeholder="请输入您的用户名"
+          :type="'text'"
           center
           no-border
           :custom-style="'height: 88rpx; background: #f7f8fc; border-radius: 16rpx; padding: 0 20rpx'"
@@ -59,7 +58,7 @@
           <template #prefix>
             <text
               style="font-size: 32rpx; line-height: 88rpx; margin-right: 12rpx"
-              >📱</text
+              >�</text
             >
           </template>
         </wd-input>
@@ -134,14 +133,15 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { ApiPostUserRegister } from "@/api/user";
 
-const phone = ref("");
+const username = ref("");
 const password = ref("");
 const confirmPassword = ref("");
 
-const handleRegister = () => {
-  if (!phone.value) {
-    uni.showToast({ title: "请输入手机号", icon: "none" });
+const handleRegister = async () => {
+  if (!username.value) {
+    uni.showToast({ title: "请输入用户名", icon: "none" });
     return;
   }
   if (password.value.length < 6) {
@@ -152,10 +152,29 @@ const handleRegister = () => {
     uni.showToast({ title: "两次密码不一致", icon: "none" });
     return;
   }
-  uni.showToast({ title: "注册成功", icon: "success" });
-  setTimeout(() => {
-    uni.navigateBack();
-  }, 1500);
+
+  uni.showLoading({ title: "注册中..." });
+  try {
+    const res = await ApiPostUserRegister({
+      username: username.value,
+      password: password.value,
+    });
+    uni.hideLoading();
+    if (res.code === 200) {
+      uni.showToast({ title: "注册成功", icon: "success" });
+      setTimeout(() => {
+        uni.navigateBack();
+      }, 1500);
+    } else {
+      uni.showToast({
+        title: res.message || res.msg || "注册失败",
+        icon: "none",
+      });
+    }
+  } catch (err) {
+    uni.hideLoading();
+    uni.showToast({ title: "网络异常，请稍后重试", icon: "none" });
+  }
 };
 
 const handleGoLogin = () => {

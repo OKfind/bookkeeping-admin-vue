@@ -186,7 +186,10 @@ const handleLogin = async () => {
       }, 1500);
     } else {
       uni.hideLoading();
-      uni.showToast({ title: res.msg || "登录失败", icon: "none" });
+      uni.showToast({
+        title: res.message || res.msg || "登录失败",
+        icon: "none",
+      });
     }
   } catch (err) {
     uni.hideLoading();

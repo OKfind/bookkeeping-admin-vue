@@ -64,7 +64,7 @@ function checkCodeFn(data: ResponseData<any>) {
       },
     })
   } else if (!code.includes(Number(data.code))) {
-    uni.showToast({ title: data.msg, icon: 'none' })
+    uni.showToast({ title: data.message || data.msg, icon: 'none' })
   } else {
     data.code = 200
   }
