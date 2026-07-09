@@ -1,13 +1,17 @@
 <template>
   <view class="tabbar">
     <view class="tabbar-item" @click="switchTab('/pages/index/index', 0)">
-      <view class="tabbar-icon"><text class="icon-text">📄</text></view>
+      <view class="tabbar-icon">
+        <text class="icon-text">{{ active === 0 ? "🏠" : "🛖" }}</text>
+      </view>
       <text :class="['tabbar-text', active === 0 ? 'tabbar-text-active' : '']"
         >首页</text
       >
     </view>
     <view class="tabbar-item" @click="switchTab('/pages/flow/index', 1)">
-      <view class="tabbar-icon"><text class="icon-text">📋</text></view>
+      <view class="tabbar-icon">
+        <text class="icon-text">{{ active === 1 ? "🀄️" : "📋" }}</text>
+      </view>
       <text :class="['tabbar-text', active === 1 ? 'tabbar-text-active' : '']"
         >流水</text
       >
@@ -20,13 +24,17 @@
     </view>
 
     <view class="tabbar-item" @click="switchTab('/pages/statistics/index', 2)">
-      <view class="tabbar-icon"><text class="icon-text">📊</text></view>
+      <view class="tabbar-icon">
+        <text class="icon-text">{{ active === 2 ? "📒" : "📊" }}</text>
+      </view>
       <text :class="['tabbar-text', active === 2 ? 'tabbar-text-active' : '']"
         >统计</text
       >
     </view>
     <view class="tabbar-item" @click="switchTab('/pages/mine/index', 3)">
-      <view class="tabbar-icon"><text class="icon-text">👤</text></view>
+      <view class="tabbar-icon">
+        <text class="icon-text">{{ active === 3 ? "🙋🏻‍♂️" : "🙅🏻‍♂️" }}</text>
+      </view>
       <text :class="['tabbar-text', active === 3 ? 'tabbar-text-active' : '']"
         >我的</text
       >
