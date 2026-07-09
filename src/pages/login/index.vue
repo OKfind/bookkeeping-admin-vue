@@ -148,7 +148,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { ApiPostUserLogin, ApiGetUserInfo } from "@/api/user";
+import { ApiPostUserLogin, ApiGetUserInfo, ApiPostWxLogin } from "@/api/user";
 
 const username = ref("");
 const password = ref("");
@@ -206,6 +206,38 @@ const handleForgotPassword = () => {
 };
 
 const handleWechatLogin = () => {
-  uni.showToast({ title: "微信登录", icon: "none" });
+  uni.showLoading({ title: "登录中..." });
+  uni.login({
+    success: async (loginRes) => {
+      try {
+        const res = await ApiPostWxLogin(loginRes.code);
+        if (res.code === 200) {
+          uni.setStorageSync("token", res.data);
+          const userRes = await ApiGetUserInfo();
+          if (userRes.code === 200) {
+            uni.setStorageSync("userInfo", userRes.data);
+          }
+          uni.hideLoading();
+          uni.showToast({ title: "登录成功", icon: "success" });
+          setTimeout(() => {
+            uni.reLaunch({ url: "/pages/index/index" });
+          }, 1500);
+        } else {
+          uni.hideLoading();
+          uni.showToast({
+            title: res.message || res.msg || "登录失败",
+            icon: "none",
+          });
+        }
+      } catch (err) {
+        uni.hideLoading();
+        uni.showToast({ title: "网络异常，请稍后重试", icon: "none" });
+      }
+    },
+    fail: () => {
+      uni.hideLoading();
+      uni.showToast({ title: "微信登录失败", icon: "none" });
+    },
+  });
 };
 </script>
