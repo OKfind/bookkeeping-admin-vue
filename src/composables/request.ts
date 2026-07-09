@@ -86,7 +86,8 @@ async function checkStatus(res: UniApp.RequestSuccessCallbackResult): Promise<Re
 
   return {
     code: -404,
-    data: res.statusCode,
+    data: res.statusCode as any,
+    message: `接口返回数据错误, 错误代码: ${res.statusCode}`,
     msg: `接口返回数据错误, 错误代码: ${res.statusCode}`,
   }
 }
