@@ -171,7 +171,7 @@ const handleLogin = async () => {
       password: password.value,
     });
     if (res.code === 200) {
-      uni.setStorageSync("token", res.data);
+      uni.setStorageSync("token", res.data.token);
 
       // 获取用户基本信息
       const userRes = await ApiGetUserInfo();
@@ -212,7 +212,7 @@ const handleWechatLogin = () => {
       try {
         const res = await ApiPostWxLogin(loginRes.code);
         if (res.code === 200) {
-          uni.setStorageSync("token", res.data);
+          uni.setStorageSync("token", res.data.token);
           const userRes = await ApiGetUserInfo();
           if (userRes.code === 200) {
             uni.setStorageSync("userInfo", userRes.data);

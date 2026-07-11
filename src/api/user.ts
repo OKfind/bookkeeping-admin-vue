@@ -3,11 +3,16 @@ export interface RequestLoginParams {
   password: string;
 }
 
+export interface LoginData {
+  openid: string;
+  token: string;
+}
+
 /**
  * 用户登录
  */
 export function ApiPostUserLogin(data: RequestLoginParams) {
-  return $api.post<string>("/user/login", data);
+  return $api.post<LoginData>("/user/login", data);
 }
 
 /**
@@ -43,5 +48,5 @@ export function ApiGetUserInfo() {
  * @returns
  */
 export function ApiPostWxLogin(code: string) {
-  return $api.post("/wx/login", { code });
+  return $api.post<LoginData>("/wx/login", { code });
 }
