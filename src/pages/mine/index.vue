@@ -1,58 +1,70 @@
 <template>
-  <view class="page">
+  <view class="min-h-100vh bg-[#f6f7fb] pb-[140rpx]">
     <!-- 顶部用户信息区 -->
-    <view class="header">
+    <view
+      class="relative bg-gradient-to-br from-[#e8eaf6] via-[#f3e5f5] to-[#e8eaf6] px-[32rpx] pb-[40rpx] pt-[80rpx]"
+    >
       <!-- 通知铃铛 -->
-      <view class="header-bell">
-        <text class="bell-icon">🔔</text>
+      <view class="absolute right-[32rpx] top-[40rpx]">
+        <text class="text-[40rpx]">🔔</text>
       </view>
 
       <!-- 头像 + 昵称 -->
-      <view class="user-info">
-        <image class="avatar" src="/static/avatar.png" mode="aspectFill" />
-        <view class="user-detail">
-          <view class="user-name-row">
-            <text class="user-name">小菜花</text>
-            <text class="edit-icon">✏️</text>
+      <view class="mb-[40rpx] flex items-center">
+        <image
+          class="mr-[24rpx] h-[120rpx] w-[120rpx] flex-shrink-0 rounded-full"
+          src="/static/avatar.png"
+          mode="aspectFill"
+        />
+        <view class="flex flex-col">
+          <view class="mb-[8rpx] flex items-center">
+            <text class="mr-[12rpx] text-[36rpx] font-600 text-[#333]">{{ nickname }}</text>
+            <text class="text-[28rpx]">✏️</text>
           </view>
-          <text class="user-desc">欢迎来到Hugo记账</text>
+          <text class="text-[24rpx] text-[#999]">欢迎来到Hugo记账</text>
         </view>
       </view>
 
       <!-- 统计数据 -->
-      <view class="stats-row">
-        <view class="stat-item">
-          <text class="stat-num">382</text>
-          <text class="stat-label">记账总笔数</text>
+      <view class="flex justify-around pb-[10rpx] pt-[20rpx]">
+        <view class="flex flex-col items-center">
+          <text class="mb-[8rpx] text-[44rpx] font-700 text-[#333]">382</text>
+          <text class="text-[22rpx] text-[#999]">记账总笔数</text>
         </view>
-        <view class="stat-item">
-          <text class="stat-num">90</text>
-          <text class="stat-label">记账总天数</text>
+        <view class="flex flex-col items-center">
+          <text class="mb-[8rpx] text-[44rpx] font-700 text-[#333]">90</text>
+          <text class="text-[22rpx] text-[#999]">记账总天数</text>
         </view>
-        <view class="stat-item">
-          <text class="stat-num">3</text>
-          <text class="stat-label">账本数量</text>
+        <view class="flex flex-col items-center">
+          <text class="mb-[8rpx] text-[44rpx] font-700 text-[#333]">3</text>
+          <text class="text-[22rpx] text-[#999]">账本数量</text>
         </view>
       </view>
     </view>
 
     <!-- 菜单列表 -->
-    <view class="menu-list">
+    <view class="mx-[20rpx] mt-[20rpx] overflow-hidden rounded-[20rpx] bg-white">
       <view
-        class="menu-item"
+        class="flex items-center justify-between px-[24rpx] py-[28rpx]"
+        :class="{ 'border-b border-[#f0f0f0]': index !== menuList.length - 1 }"
         v-for="(item, index) in menuList"
         :key="index"
         @click="handleMenuClick(item)"
       >
-        <view class="menu-left">
-          <view class="menu-icon-wrap" :style="{ background: item.bgColor }">
-            <text class="menu-icon">{{ item.icon }}</text>
+        <view class="flex items-center">
+          <view
+            class="mr-[20rpx] flex h-[64rpx] w-[64rpx] items-center justify-center rounded-[16rpx]"
+            :style="{ background: item.bgColor }"
+          >
+            <text class="text-[32rpx]">{{ item.icon }}</text>
           </view>
-          <text class="menu-title">{{ item.title }}</text>
+          <text class="text-[30rpx] font-500 text-[#333]">{{ item.title }}</text>
         </view>
-        <view class="menu-right">
-          <text v-if="item.extra" class="menu-extra">{{ item.extra }}</text>
-          <text class="menu-arrow">›</text>
+        <view class="flex items-center">
+          <text v-if="item.extra" class="mr-[12rpx] text-[24rpx] text-[#999]">
+            {{ item.extra }}
+          </text>
+          <text class="text-[36rpx] text-[#ccc]">›</text>
         </view>
       </view>
     </view>
@@ -62,7 +74,23 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+import { onShow } from "@dcloudio/uni-app";
 import TabBar from "@/components/TabBar.vue";
+
+const nickname = ref("暂无昵称");
+
+const refreshUserInfo = () => {
+  const userInfo = uni.getStorageSync("userInfo");
+  const nextNickname =
+    userInfo && typeof userInfo === "object" ? String(userInfo.nickname || "") : "";
+
+  nickname.value = nextNickname.trim() || "暂无昵称";
+};
+
+onShow(() => {
+  refreshUserInfo();
+});
 
 const menuList = [
   { title: "协作成员", icon: "💎", bgColor: "#e8f0fe", extra: "4位协作成员" },
@@ -94,156 +122,3 @@ const handleMenuClick = (item: any) => {
   uni.showToast({ title: item.title, icon: "none" });
 };
 </script>
-
-<style scoped>
-.page {
-  min-height: 100vh;
-  background: #f6f7fb;
-  padding-bottom: 140rpx;
-}
-
-/* 顶部区域 */
-.header {
-  position: relative;
-  background: linear-gradient(135deg, #e8eaf6 0%, #f3e5f5 50%, #e8eaf6 100%);
-  padding: 60rpx 32rpx 40rpx;
-  padding-top: 80rpx;
-}
-
-.header-bell {
-  position: absolute;
-  top: 40rpx;
-  right: 32rpx;
-}
-
-.bell-icon {
-  font-size: 40rpx;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  margin-bottom: 40rpx;
-}
-
-.avatar {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  margin-right: 24rpx;
-  flex-shrink: 0;
-}
-
-.user-detail {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-name-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8rpx;
-}
-
-.user-name {
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #333;
-  margin-right: 12rpx;
-}
-
-.edit-icon {
-  font-size: 28rpx;
-}
-
-.user-desc {
-  font-size: 24rpx;
-  color: #999;
-}
-
-/* 统计行 */
-.stats-row {
-  display: flex;
-  justify-content: space-around;
-  padding: 20rpx 0 10rpx;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.stat-num {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 8rpx;
-}
-
-.stat-label {
-  font-size: 22rpx;
-  color: #999;
-}
-
-/* 菜单列表 */
-.menu-list {
-  margin: 20rpx 20rpx 0;
-  background: #fff;
-  border-radius: 20rpx;
-  overflow: hidden;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 28rpx 24rpx;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.menu-item:last-child {
-  border-bottom: none;
-}
-
-.menu-left {
-  display: flex;
-  align-items: center;
-}
-
-.menu-icon-wrap {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20rpx;
-}
-
-.menu-icon {
-  font-size: 32rpx;
-}
-
-.menu-title {
-  font-size: 30rpx;
-  color: #333;
-  font-weight: 500;
-}
-
-.menu-right {
-  display: flex;
-  align-items: center;
-}
-
-.menu-extra {
-  font-size: 24rpx;
-  color: #999;
-  margin-right: 12rpx;
-}
-
-.menu-arrow {
-  font-size: 36rpx;
-  color: #ccc;
-}
-</style>
