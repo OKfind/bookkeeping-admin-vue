@@ -49,7 +49,7 @@ const switchTab = (url: string, index: number) => {
   uni.switchTab({ url });
 };
 const handleAdd = () => {
-  uni.showToast({ title: "记一笔", icon: "none" });
+  uni.navigateTo({ url: "/pages/bookkeeping/index" });
 };
 </script>
 
