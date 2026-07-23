@@ -42,6 +42,13 @@
       }
     },
     {
+      "path": "pages/bookkeeping/index",
+      "style": {
+        "navigationBarTitleText": "添加账单",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/test/index",
       "style": {
         "navigationBarTitleText": "测试"
