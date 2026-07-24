@@ -12,11 +12,11 @@
       </view>
       <view class="h-[72rpx] flex items-center justify-between px-[58rpx] pt-[10rpx]">
         <view class="flex gap-[56rpx]">
-          <view :class="['relative py-[12rpx] text-[29rpx]', billType === 1 ? 'font-600 text-white' : 'text-white/70']" @click="billType = 1">
-            支出<view v-if="billType === 1" class="absolute bottom-0 left-1/2 h-[4rpx] w-[28rpx] -translate-x-1/2 rounded-[2rpx] bg-white" />
-          </view>
           <view :class="['relative py-[12rpx] text-[29rpx]', billType === 2 ? 'font-600 text-white' : 'text-white/70']" @click="billType = 2">
-            收入<view v-if="billType === 2" class="absolute bottom-0 left-1/2 h-[4rpx] w-[28rpx] -translate-x-1/2 rounded-[2rpx] bg-white" />
+            支出<view v-if="billType === 2" class="absolute bottom-0 left-1/2 h-[4rpx] w-[28rpx] -translate-x-1/2 rounded-[2rpx] bg-white" />
+          </view>
+          <view :class="['relative py-[12rpx] text-[29rpx]', billType === 1 ? 'font-600 text-white' : 'text-white/70']" @click="billType = 1">
+            收入<view v-if="billType === 1" class="absolute bottom-0 left-1/2 h-[4rpx] w-[28rpx] -translate-x-1/2 rounded-[2rpx] bg-white" />
           </view>
         </view>
         <wd-datetime-picker v-model="billDate" type="date" :max-date="today" root-portal>
@@ -67,7 +67,7 @@ const categories = billCategories;
 
 const now = new Date();
 const today = now.getTime();
-const billType = ref(1);
+const billType = ref(2);
 const amount = ref("");
 const category = ref(1);
 const paymentMethod = ref(1);

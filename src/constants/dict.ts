@@ -14,11 +14,11 @@ export const paymentMethods: DictItem[] = [
 ];
 
 export const billCategories: DictItem[] = [
-  { value: 1, label: "购物", icon: "▱" },
-  { value: 2, label: "交通", icon: "▰" },
-  { value: 3, label: "娱乐", icon: "♧" },
-  { value: 4, label: "餐饮", icon: "♨" },
-  { value: 5, label: "住房", icon: "⌂" },
-  { value: 6, label: "就医", icon: "♧" },
-  { value: 7, label: "人情", icon: "♡" },
+  { value: 1, label: "购物", icon: "🛒" },
+  { value: 2, label: "交通", icon: "🛻" },
+  { value: 3, label: "娱乐", icon: "💐" },
+  { value: 4, label: "餐饮", icon: "☕" },
+  { value: 5, label: "住房", icon: "🏠️" },
+  { value: 6, label: "就医", icon: "🏥" },
+  { value: 7, label: "人情", icon: "👫" },
 ];
