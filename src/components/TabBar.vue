@@ -1,7 +1,7 @@
 <template>
   <view class="tabbar">
     <view class="tabbar-item" @click="switchTab('/pages/index/index', 0)">
-      <view class="tabbar-icon">
+      <view :class="['tabbar-icon', active === 0 ? 'tabbar-icon-active' : '']">
         <text class="icon-text">{{ active === 0 ? "🏠" : "🛖" }}</text>
       </view>
       <text :class="['tabbar-text', active === 0 ? 'tabbar-text-active' : '']"
@@ -9,7 +9,7 @@
       >
     </view>
     <view class="tabbar-item" @click="switchTab('/pages/flow/index', 1)">
-      <view class="tabbar-icon">
+      <view :class="['tabbar-icon', active === 1 ? 'tabbar-icon-active' : '']">
         <text class="icon-text">{{ active === 1 ? "🀄️" : "📋" }}</text>
       </view>
       <text :class="['tabbar-text', active === 1 ? 'tabbar-text-active' : '']"
@@ -24,7 +24,7 @@
     </view>
 
     <view class="tabbar-item" @click="switchTab('/pages/statistics/index', 2)">
-      <view class="tabbar-icon">
+      <view :class="['tabbar-icon', active === 2 ? 'tabbar-icon-active' : '']">
         <text class="icon-text">{{ active === 2 ? "📒" : "📊" }}</text>
       </view>
       <text :class="['tabbar-text', active === 2 ? 'tabbar-text-active' : '']"
@@ -32,7 +32,7 @@
       >
     </view>
     <view class="tabbar-item" @click="switchTab('/pages/mine/index', 3)">
-      <view class="tabbar-icon">
+      <view :class="['tabbar-icon', active === 3 ? 'tabbar-icon-active' : '']">
         <text class="icon-text">{{ active === 3 ? "🙋🏻‍♂️" : "🙅🏻‍♂️" }}</text>
       </view>
       <text :class="['tabbar-text', active === 3 ? 'tabbar-text-active' : '']"
@@ -59,7 +59,7 @@ const handleAdd = () => {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 110rpx;
+  height: 112rpx;
   background: #ffffff;
   display: flex;
   align-items: center;
@@ -78,7 +78,7 @@ const handleAdd = () => {
   transform: translateX(-50%);
   width: 170rpx;
   height: 85rpx;
-  background: #f6f7fb;
+  background: #f4f6ff;
   border-radius: 0 0 85rpx 85rpx;
   z-index: 1;
 }
@@ -95,28 +95,38 @@ const handleAdd = () => {
 }
 
 .tabbar-icon {
-  width: 48rpx;
-  height: 48rpx;
+  min-width: 48rpx;
+  height: 44rpx;
+  padding: 0 10rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 4rpx;
+  border-radius: 10rpx;
+  color: #c8cce4;
+}
+
+.tabbar-icon-active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #3e5eff, #6d85ff);
+  box-shadow: 0 4rpx 12rpx rgba(63, 94, 255, 0.28);
 }
 
 .icon-text {
-  font-size: 40rpx;
+  font-size: 34rpx;
   line-height: 1;
+  font-weight: 700;
 }
 
 .tabbar-text {
   font-size: 22rpx;
-  color: #999999;
+  color: #c1c6de;
   line-height: 1;
+  font-weight: 700;
 }
 
 .tabbar-text-active {
-  color: #3b5fe0;
-  font-weight: 500;
+  color: #2854ff;
 }
 
 .tabbar-center {
@@ -133,7 +143,7 @@ const handleAdd = () => {
   width: 104rpx;
   height: 104rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f56c6c, #ff8a8a);
+  background: linear-gradient(135deg, #ff3f80, #ff5b91);
   display: flex;
   align-items: center;
   justify-content: center;

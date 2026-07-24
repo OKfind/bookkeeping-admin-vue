@@ -26,7 +26,8 @@
     {
       "path": "pages/flow/index",
       "style": {
-        "navigationBarTitleText": "流水"
+        "navigationBarTitleText": "流水",
+        "navigationStyle": "custom"
       }
     },
     {
