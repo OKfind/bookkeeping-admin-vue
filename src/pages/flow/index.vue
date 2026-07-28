@@ -239,6 +239,10 @@
                     ? ''
                     : 'border-0 border-b-[1rpx] border-b-[#e7e9f0]',
                 ]"
+                hover-class="bg-[#f7f8fc]"
+                hover-start-time="0"
+                hover-stay-time="80"
+                @click="openBillDetail(item.id)"
               >
                 <view
                   :class="[
@@ -303,6 +307,10 @@
                       ? ''
                       : 'border-0 border-b-[1rpx] border-b-[#e7e9f0]',
                   ]"
+                  hover-class="bg-[#f7f8fc]"
+                  hover-start-time="0"
+                  hover-stay-time="80"
+                  @click="openBillDetail(item.id)"
                 >
                   <view
                     :class="[
@@ -703,6 +711,17 @@ const refreshUserBills = async () => {
 
 const goToBookkeeping = () => {
   uni.navigateTo({ url: "/pages/bookkeeping/index" });
+};
+
+const openBillDetail = (billId: number) => {
+  const selectedBill = bills.value.find((bill) => bill.id === billId);
+  if (!selectedBill) {
+    uni.showToast({ title: "账单信息不存在", icon: "none" });
+    return;
+  }
+
+  uni.setStorageSync("selectedBillDetail", selectedBill);
+  uni.navigateTo({ url: `/pages/bill-detail/index?id=${billId}` });
 };
 
 watch(selectedMonth, () => loadUserBills());

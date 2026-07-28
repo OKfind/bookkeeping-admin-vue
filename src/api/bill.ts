@@ -31,7 +31,7 @@ export interface ResUserBill {
   remark: string;
   user_id: number;
   pay_type: number;
-  bill_img: string;
+  bill_img: string | null;
   category_id: number;
   bill_time: string;
   create_time: string;
@@ -43,4 +43,24 @@ export interface ResUserBill {
  */
 export function ApiGetUserBill(data: ReqUserBill) {
   return $api.get<ResUserBill[]>("/bill", { ...data });
+}
+
+export interface ReqUpdateBill extends ReqAddBill {
+  id: number;
+}
+
+/**
+ * 编辑当前用户账单的流水状况
+ */
+export function ApiPutUserBill(data: ReqUpdateBill) {
+  return $api.put("/bill", data);
+}
+
+/**
+ * 删除用户账单
+ * @param id
+ * @returns
+ */
+export function ApiDeleteUserBill(id: number) {
+  return $api.delete(`/bill/${id}`);
 }

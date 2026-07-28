@@ -7,7 +7,10 @@
           <view class="absolute left-[1rpx] top-[23rpx] h-[4rpx] w-[45rpx] rotate-45 rounded-[2rpx] bg-white" />
           <view class="absolute left-[1rpx] top-[23rpx] h-[4rpx] w-[45rpx] -rotate-45 rounded-[2rpx] bg-white" />
         </view>
-        <view class="text-[34rpx] font-600">个人账本 <text class="ml-[4rpx] text-[18rpx]">▼</text></view>
+        <view class="text-[34rpx] font-600">
+          {{ isEditMode ? "编辑账单" : "个人账本" }}
+          <text v-if="!isEditMode" class="ml-[4rpx] text-[18rpx]">▼</text>
+        </view>
         <view class="w-[48rpx]" />
       </view>
       <view class="h-[72rpx] flex items-center justify-between px-[58rpx] pt-[10rpx]">
@@ -49,16 +52,19 @@
       </view>
       <view class="mt-[40rpx] text-[27rpx] font-600 text-[#555]">备注</view>
       <textarea v-model="remark" class="mt-[28rpx] h-[118rpx] w-full box-border border-0 border-b-[1rpx] border-b-[#ddd] px-0 py-[12rpx] text-[26rpx] leading-[42rpx]" maxlength="50" placeholder="请填写备注信息（限50字）" placeholder-class="text-[#b9bdc8]" />
-      <button class="fixed bottom-[calc(40rpx+env(safe-area-inset-bottom))] left-[58rpx] right-[58rpx] h-[88rpx] border-0 rounded-[9rpx] bg-[#3458f5] text-[32rpx] font-600 text-white leading-[88rpx] after:border-0 disabled:opacity-70" :loading="isSaving" :disabled="isSaving" @click="save">保存</button>
+      <button class="fixed bottom-[calc(40rpx+env(safe-area-inset-bottom))] left-[58rpx] right-[58rpx] h-[88rpx] border-0 rounded-[9rpx] bg-[#3458f5] text-[32rpx] font-600 text-white leading-[88rpx] after:border-0 disabled:opacity-70" :loading="isSaving" :disabled="isSaving" @click="save">
+        {{ isEditMode ? "保存修改" : "保存" }}
+      </button>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
+import { onLoad } from "@dcloudio/uni-app";
 import { computed, ref } from "vue";
-import { ApiPostAddBill } from "@/api/bill";
+import { ApiPostAddBill, ApiPutUserBill, type ResUserBill } from "@/api/bill";
 import { billCategories, paymentMethods } from "@/constants/dict";
-import { formatDateTime } from "@/utils/date";
+import { formatDateTime, parseDateTime } from "@/utils/date";
 import { readImageAsBase64DataUrl } from "@/utils/file";
 
 type StoredUserInfo = { id?: number };
@@ -75,6 +81,9 @@ const billDate = ref(today);
 const images = ref<string[]>([]);
 const remark = ref("");
 const isSaving = ref(false);
+const isEditMode = ref(false);
+const editingBill = ref<ResUserBill | null>(null);
+const originalBillImage = ref("");
 const displayDate = computed(() => {
   const date = new Date(billDate.value);
   return `${date.getMonth() + 1}月${date.getDate()}日`;
@@ -115,11 +124,14 @@ const save = async () => {
 
   if (isSaving.value) return;
   isSaving.value = true;
-  uni.showLoading({ title: "保存中..." });
+  uni.showLoading({ title: isEditMode.value ? "修改中..." : "保存中..." });
 
   try {
-    const billImg = images.value[0] ? await readImageAsBase64DataUrl(images.value[0]) : "";
-    const res = await ApiPostAddBill({
+    const currentImage = images.value[0] || "";
+    const billImg = currentImage && currentImage !== originalBillImage.value
+      ? await readImageAsBase64DataUrl(currentImage)
+      : currentImage;
+    const billData = {
       user_id: userId,
       type: billType.value,
       pay_type: paymentMethod.value,
@@ -128,20 +140,65 @@ const save = async () => {
       bill_img: billImg,
       remark: remark.value.trim(),
       bill_time: formatDateTime(billDate.value),
-    });
+    };
+    const res = isEditMode.value && editingBill.value
+      ? await ApiPutUserBill({ id: editingBill.value.id, ...billData })
+      : await ApiPostAddBill(billData);
 
     uni.hideLoading();
     if (res.code === 200) {
-      uni.showToast({ title: "保存成功", icon: "success" });
+      if (isEditMode.value && editingBill.value) {
+        const updatedBill: ResUserBill = {
+          ...editingBill.value,
+          ...billData,
+          bill_img: billImg || null,
+        };
+        uni.setStorageSync("selectedBillDetail", updatedBill);
+      }
+      uni.showToast({ title: isEditMode.value ? "修改成功" : "保存成功", icon: "success" });
       setTimeout(() => {
         uni.navigateBack();
       }, 800);
     }
   } catch (error) {
     uni.hideLoading();
-    uni.showToast({ title: "保存失败，请稍后重试", icon: "none" });
+    uni.showToast({ title: isEditMode.value ? "修改失败，请稍后重试" : "保存失败，请稍后重试", icon: "none" });
   } finally {
     isSaving.value = false;
   }
 };
+
+const parseStoredBill = (value: unknown) => {
+  if (!value) return null;
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value) as ResUserBill;
+    } catch {
+      return null;
+    }
+  }
+  return value as ResUserBill;
+};
+
+onLoad((options) => {
+  if (options?.mode !== "edit") return;
+  const storedBill = parseStoredBill(uni.getStorageSync("selectedBillDetail"));
+  const billId = Number(options.id);
+  if (!storedBill || storedBill.id !== billId) {
+    uni.showToast({ title: "账单信息不存在", icon: "none" });
+    return;
+  }
+
+  const storedBillDate = parseDateTime(storedBill.bill_time);
+  isEditMode.value = true;
+  editingBill.value = storedBill;
+  billType.value = Number(storedBill.type);
+  amount.value = storedBill.amount === null ? "" : String(storedBill.amount);
+  category.value = Number(storedBill.category_id);
+  paymentMethod.value = Number(storedBill.pay_type);
+  billDate.value = Number.isNaN(storedBillDate.getTime()) ? today : storedBillDate.getTime();
+  originalBillImage.value = storedBill.bill_img || "";
+  images.value = originalBillImage.value ? [originalBillImage.value] : [];
+  remark.value = storedBill.remark || "";
+});
 </script>

@@ -50,6 +50,13 @@
       }
     },
     {
+      "path": "pages/bill-detail/index",
+      "style": {
+        "navigationBarTitleText": "账单详情",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/test/index",
       "style": {
         "navigationBarTitleText": "测试"
