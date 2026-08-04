@@ -64,3 +64,18 @@ export function ApiPutUserBill(data: ReqUpdateBill) {
 export function ApiDeleteUserBill(id: number) {
   return $api.delete(`/bill/${id}`);
 }
+
+export interface ResCategoryList {
+  id: number;
+  name: string;
+  type: number;
+  icon?: any;
+  sort: number;
+}
+/**
+ * 获取账单类型列表
+ * @returns
+ */
+export function ApiGetCategoryList() {
+  return $api.get<ResCategoryList[]>("/category/list");
+}

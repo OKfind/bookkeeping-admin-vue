@@ -15,10 +15,10 @@
       </view>
       <view class="h-[72rpx] flex items-center justify-between px-[58rpx] pt-[10rpx]">
         <view class="flex gap-[56rpx]">
-          <view :class="['relative py-[12rpx] text-[29rpx]', billType === 2 ? 'font-600 text-white' : 'text-white/70']" @click="billType = 2">
+          <view :class="['relative py-[12rpx] text-[29rpx]', billType === 2 ? 'font-600 text-white' : 'text-white/70']" @click="selectBillType(2)">
             支出<view v-if="billType === 2" class="absolute bottom-0 left-1/2 h-[4rpx] w-[28rpx] -translate-x-1/2 rounded-[2rpx] bg-white" />
           </view>
-          <view :class="['relative py-[12rpx] text-[29rpx]', billType === 1 ? 'font-600 text-white' : 'text-white/70']" @click="billType = 1">
+          <view :class="['relative py-[12rpx] text-[29rpx]', billType === 1 ? 'font-600 text-white' : 'text-white/70']" @click="selectBillType(1)">
             收入<view v-if="billType === 1" class="absolute bottom-0 left-1/2 h-[4rpx] w-[28rpx] -translate-x-1/2 rounded-[2rpx] bg-white" />
           </view>
         </view>
@@ -28,10 +28,16 @@
       </view>
       <input v-model="amount" class="mx-[58rpx] box-border h-[112rpx] border-0 border-b-[1rpx] border-b-white/18 text-[58rpx] text-white" type="digit" placeholder="0.0" placeholder-class="text-white/48" />
       <scroll-view class="h-[208rpx] w-full" scroll-x :show-scrollbar="false">
-        <view class="inline-flex min-w-full box-border gap-[29rpx] whitespace-nowrap px-[42rpx] pb-[20rpx] pt-[50rpx]">
-          <view v-for="item in categories" :key="item.value" class="w-[88rpx] flex flex-none flex-col items-center" @click="category = item.value">
-            <view :class="['h-[74rpx] w-[74rpx] flex items-center justify-center rounded-full text-[38rpx] text-white/72', category === item.value ? 'bg-white/43 ring-[3rpx] ring-white/22' : 'bg-white/27']"><text>{{ item.icon }}</text></view>
-            <text :class="['mt-[15rpx] text-[24rpx]', category === item.value ? 'text-white' : 'text-white/66']">{{ item.label }}</text>
+        <view v-if="isCategoryLoading" class="h-full min-w-full flex items-center justify-center text-[24rpx] text-white/70">
+          分类加载中...
+        </view>
+        <view v-else-if="!categories.length" class="h-full min-w-full flex items-center justify-center text-[24rpx] text-white/70">
+          {{ categoryLoadFailed ? "分类加载失败，请稍后重试" : "暂无可用分类" }}
+        </view>
+        <view v-else class="inline-flex min-w-full box-border gap-[29rpx] whitespace-nowrap px-[42rpx] pb-[20rpx] pt-[50rpx]">
+          <view v-for="item in categories" :key="item.id" class="w-[88rpx] flex flex-none flex-col items-center" @click="category = item.id">
+            <view :class="['h-[74rpx] w-[74rpx] flex items-center justify-center rounded-full text-[38rpx] text-white/72', category === item.id ? 'bg-white/43 ring-[3rpx] ring-white/22' : 'bg-white/27']"><text>{{ item.icon || item.name.slice(0, 1) }}</text></view>
+            <text :class="['mt-[15rpx] text-[24rpx]', category === item.id ? 'text-white' : 'text-white/66']">{{ item.name }}</text>
           </view>
         </view>
       </scroll-view>
@@ -62,20 +68,21 @@
 <script setup lang="ts">
 import { onLoad } from "@dcloudio/uni-app";
 import { computed, ref } from "vue";
-import { ApiPostAddBill, ApiPutUserBill, type ResUserBill } from "@/api/bill";
-import { billCategories, paymentMethods } from "@/constants/dict";
+import { ApiGetCategoryList, ApiPostAddBill, ApiPutUserBill, type ResCategoryList, type ResUserBill } from "@/api/bill";
+import { paymentMethods } from "@/constants/dict";
 import { formatDateTime, parseDateTime } from "@/utils/date";
 import { readImageAsBase64DataUrl } from "@/utils/file";
 
 type StoredUserInfo = { id?: number };
 
-const categories = billCategories;
-
 const now = new Date();
 const today = now.getTime();
 const billType = ref(2);
 const amount = ref("");
-const category = ref(1);
+const category = ref(0);
+const categoryList = ref<ResCategoryList[]>([]);
+const isCategoryLoading = ref(false);
+const categoryLoadFailed = ref(false);
 const paymentMethod = ref(1);
 const billDate = ref(today);
 const images = ref<string[]>([]);
@@ -84,10 +91,39 @@ const isSaving = ref(false);
 const isEditMode = ref(false);
 const editingBill = ref<ResUserBill | null>(null);
 const originalBillImage = ref("");
+const categories = computed(() => categoryList.value
+  .filter((item) => Number(item.type) === billType.value)
+  .sort((a, b) => Number(a.sort) - Number(b.sort)));
 const displayDate = computed(() => {
   const date = new Date(billDate.value);
   return `${date.getMonth() + 1}月${date.getDate()}日`;
 });
+const syncSelectedCategory = () => {
+  if (!categories.value.some((item) => item.id === category.value)) {
+    category.value = categories.value[0]?.id ?? 0;
+  }
+};
+const selectBillType = (type: number) => {
+  billType.value = type;
+  syncSelectedCategory();
+};
+const loadCategoryList = async () => {
+  isCategoryLoading.value = true;
+  categoryLoadFailed.value = false;
+  try {
+    const res = await ApiGetCategoryList();
+    if (res.code !== 200) {
+      categoryLoadFailed.value = true;
+      return;
+    }
+    categoryList.value = Array.isArray(res.data) ? res.data : [];
+    syncSelectedCategory();
+  } catch {
+    categoryLoadFailed.value = true;
+  } finally {
+    isCategoryLoading.value = false;
+  }
+};
 const getUserId = () => {
   const userInfo = uni.getStorageSync("userInfo") as StoredUserInfo | string | "";
   if (!userInfo) return 0;
@@ -113,6 +149,10 @@ const save = async () => {
   const billAmount = Number(amount.value);
   if (!amount.value || !Number.isFinite(billAmount) || billAmount <= 0) {
     uni.showToast({ title: "请输入账单金额", icon: "none" });
+    return;
+  }
+  if (!category.value) {
+    uni.showToast({ title: "请选择账单分类", icon: "none" });
     return;
   }
 
@@ -180,25 +220,26 @@ const parseStoredBill = (value: unknown) => {
   return value as ResUserBill;
 };
 
-onLoad((options) => {
-  if (options?.mode !== "edit") return;
-  const storedBill = parseStoredBill(uni.getStorageSync("selectedBillDetail"));
-  const billId = Number(options.id);
-  if (!storedBill || storedBill.id !== billId) {
-    uni.showToast({ title: "账单信息不存在", icon: "none" });
-    return;
+onLoad(async (options) => {
+  if (options?.mode === "edit") {
+    const storedBill = parseStoredBill(uni.getStorageSync("selectedBillDetail"));
+    const billId = Number(options.id);
+    if (!storedBill || storedBill.id !== billId) {
+      uni.showToast({ title: "账单信息不存在", icon: "none" });
+    } else {
+      const storedBillDate = parseDateTime(storedBill.bill_time);
+      isEditMode.value = true;
+      editingBill.value = storedBill;
+      billType.value = Number(storedBill.type);
+      amount.value = storedBill.amount === null ? "" : String(storedBill.amount);
+      category.value = Number(storedBill.category_id);
+      paymentMethod.value = Number(storedBill.pay_type);
+      billDate.value = Number.isNaN(storedBillDate.getTime()) ? today : storedBillDate.getTime();
+      originalBillImage.value = storedBill.bill_img || "";
+      images.value = originalBillImage.value ? [originalBillImage.value] : [];
+      remark.value = storedBill.remark || "";
+    }
   }
-
-  const storedBillDate = parseDateTime(storedBill.bill_time);
-  isEditMode.value = true;
-  editingBill.value = storedBill;
-  billType.value = Number(storedBill.type);
-  amount.value = storedBill.amount === null ? "" : String(storedBill.amount);
-  category.value = Number(storedBill.category_id);
-  paymentMethod.value = Number(storedBill.pay_type);
-  billDate.value = Number.isNaN(storedBillDate.getTime()) ? today : storedBillDate.getTime();
-  originalBillImage.value = storedBill.bill_img || "";
-  images.value = originalBillImage.value ? [originalBillImage.value] : [];
-  remark.value = storedBill.remark || "";
+  await loadCategoryList();
 });
 </script>
