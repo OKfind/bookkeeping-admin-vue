@@ -22,7 +22,7 @@
             收入<view v-if="billType === 1" class="absolute bottom-0 left-1/2 h-[4rpx] w-[28rpx] -translate-x-1/2 rounded-[2rpx] bg-white" />
           </view>
         </view>
-        <wd-datetime-picker v-model="billDate" type="date" :max-date="today" root-portal>
+        <wd-datetime-picker v-model="billDate" type="datetime" :max-date="today" root-portal>
           <view class="rounded-[5rpx] bg-white/18 px-[12rpx] py-[8rpx] text-[24rpx]">{{ displayDate }} <text class="ml-[4rpx] text-[14rpx]">▼</text></view>
         </wd-datetime-picker>
       </view>
@@ -70,7 +70,7 @@ import { onLoad } from "@dcloudio/uni-app";
 import { computed, ref } from "vue";
 import { ApiGetCategoryList, ApiPostAddBill, ApiPutUserBill, type ResCategoryList, type ResUserBill } from "@/api/bill";
 import { paymentMethods } from "@/constants/dict";
-import { formatDateTime, parseDateTime } from "@/utils/date";
+import { formatFullDateTime, formatMonthDayTime, parseDateTime } from "@/utils/date";
 import { readImageAsBase64DataUrl } from "@/utils/file";
 
 type StoredUserInfo = { id?: number };
@@ -94,10 +94,7 @@ const originalBillImage = ref("");
 const categories = computed(() => categoryList.value
   .filter((item) => Number(item.type) === billType.value)
   .sort((a, b) => Number(a.sort) - Number(b.sort)));
-const displayDate = computed(() => {
-  const date = new Date(billDate.value);
-  return `${date.getMonth() + 1}月${date.getDate()}日`;
-});
+const displayDate = computed(() => formatMonthDayTime(billDate.value));
 const syncSelectedCategory = () => {
   if (!categories.value.some((item) => item.id === category.value)) {
     category.value = categories.value[0]?.id ?? 0;
@@ -179,7 +176,7 @@ const save = async () => {
       category_id: category.value,
       bill_img: billImg,
       remark: remark.value.trim(),
-      bill_time: formatDateTime(billDate.value),
+      bill_time: formatFullDateTime(billDate.value),
     };
     const res = isEditMode.value && editingBill.value
       ? await ApiPutUserBill({ id: editingBill.value.id, ...billData })

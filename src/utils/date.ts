@@ -26,3 +26,10 @@ export const formatFullDateTime = (input: DateInput) => {
   const time = `${padNumber(date.getHours())}:${padNumber(date.getMinutes())}:${padNumber(date.getSeconds())}`;
   return formatDateTime(date, time);
 };
+
+export const formatMonthDayTime = (input: DateInput) => {
+  const date = parseDateTime(input);
+  if (Number.isNaN(date.getTime())) return "--";
+
+  return `${date.getMonth() + 1}月${date.getDate()}日 ${padNumber(date.getHours())}:${padNumber(date.getMinutes())}`;
+};

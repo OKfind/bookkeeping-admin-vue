@@ -79,3 +79,25 @@ export interface ResCategoryList {
 export function ApiGetCategoryList() {
   return $api.get<ResCategoryList[]>("/category/list");
 }
+
+export interface ResDailyFlow {
+  id: number;
+  type: number;
+  amount: number | null;
+  remark: string;
+  user_id: number;
+  pay_type: number;
+  bill_img: string | null;
+  category_id: number;
+  category_name: string;
+  bill_time: string;
+  create_time: string;
+}
+/**
+ * 查询当前用户当天的流水状况
+ * @param id
+ * @returns
+ */
+export function ApiGetDailyFlow(id: number) {
+  return $api.get<ResDailyFlow[]>(`/bill/dailyFlow/${id}`);
+}
