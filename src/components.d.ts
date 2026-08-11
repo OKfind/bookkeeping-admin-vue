@@ -7,9 +7,21 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    Loading1: typeof import('./uni_modules/qiun-data-charts/components/qiun-loading/loading1.vue')['default']
+    Loading2: typeof import('./uni_modules/qiun-data-charts/components/qiun-loading/loading2.vue')['default']
+    Loading3: typeof import('./uni_modules/qiun-data-charts/components/qiun-loading/loading3.vue')['default']
+    Loading4: typeof import('./uni_modules/qiun-data-charts/components/qiun-loading/loading4.vue')['default']
+    Loading5: typeof import('./uni_modules/qiun-data-charts/components/qiun-loading/loading5.vue')['default']
+    QiunDataCharts: typeof import('./uni_modules/qiun-data-charts/components/qiun-data-charts/qiun-data-charts.vue')['default']
+    QiunError: typeof import('./uni_modules/qiun-data-charts/components/qiun-error/qiun-error.vue')['default']
+    QiunLoading: typeof import('./uni_modules/qiun-data-charts/components/qiun-loading/qiun-loading.vue')['default']
     TabBar: typeof import('./components/TabBar.vue')['default']
+    WdActionSheet: typeof import('wot-design-uni/components/wd-action-sheet/wd-action-sheet.vue')['default']
     WdButton: typeof import('wot-design-uni/components/wd-button/wd-button.vue')['default']
     WdCheckbox: typeof import('wot-design-uni/components/wd-checkbox/wd-checkbox.vue')['default']
+    WdDatetimePicker: typeof import('wot-design-uni/components/wd-datetime-picker/wd-datetime-picker.vue')['default']
+    WdIcon: typeof import('wot-design-uni/components/wd-icon/wd-icon.vue')['default']
     WdInput: typeof import('wot-design-uni/components/wd-input/wd-input.vue')['default']
+    WdStatusTip: typeof import('wot-design-uni/components/wd-status-tip/wd-status-tip.vue')['default']
   }
 }
