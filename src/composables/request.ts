@@ -32,14 +32,18 @@ function doRequest(options: RequestOptions): Promise<UniApp.RequestSuccessCallba
 function handleLoginError() {
   if (isShowingModal) return
   isShowingModal = true
-  uni.clearStorageSync()
 
   uni.showModal({
     title: '提示',
-    content: '登录过期，请重新登录',
+    content: '登录已失效，是否前往登录页面？',
+    confirmText: '去登录',
+    cancelText: '暂不登录',
     complete: () => (isShowingModal = false),
     success: (res) => {
-      if (res.confirm) uni.reLaunch({ url: '/pages/login/index' })
+      if (res.confirm) {
+        uni.clearStorageSync()
+        uni.reLaunch({ url: '/pages/login/index' })
+      }
     },
   })
 }
@@ -48,21 +52,7 @@ function checkCodeFn(data: ResponseData<any>) {
   const code = [0, 200, 1000]
 
   if (data.code === 401) {
-    if (isShowingModal) return data
-    isShowingModal = true
-    uni.showModal({
-      title: '提示',
-      content: '当前未登录或登录超时, 请重新登录',
-      complete: () => {
-        isShowingModal = false
-      },
-      success: (res) => {
-        if (res.confirm) {
-          uni.clearStorageSync()
-          uni.reLaunch({ url: '/pages/login/index' })
-        }
-      },
-    })
+    handleLoginError()
   } else if (!code.includes(Number(data.code))) {
     uni.showToast({ title: data.message || data.msg, icon: 'none' })
   } else {
@@ -78,10 +68,8 @@ async function checkStatus(res: UniApp.RequestSuccessCallbackResult): Promise<Re
   }
 
   if (res.statusCode === 401 || (resData && resData.code === 401)) {
-    if (!uni.getStorageSync('token')) {
-      handleLoginError()
-      return resData
-    }
+    handleLoginError()
+    return resData
   }
 
   return {
