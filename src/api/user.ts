@@ -30,6 +30,8 @@ export interface ResUserInfo {
   phone: string;
   userPic: string;
   openid: string;
+  billCount: number;
+  accountingDates: number;
   deleted: number;
   createTime: string;
   updateTime: string;
@@ -49,4 +51,21 @@ export function ApiGetUserInfo() {
  */
 export function ApiPostWxLogin(code: string) {
   return $api.post<LoginData>("/wx/login", { code });
+}
+
+export interface ReqUpdateUserInfo {
+  id: number;
+  username?: string;
+  nickname?: string;
+  email?: string;
+  phone?: string;
+  userPic?: string;
+}
+/**
+ * 编辑用户信息
+ * @param data
+ * @returns
+ */
+export function ApiPutUserInfo(data: ReqUpdateUserInfo) {
+  return $api.put("/user", data);
 }

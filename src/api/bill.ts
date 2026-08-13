@@ -18,7 +18,7 @@ export function ApiPostAddBill(data: ReqAddBill) {
 }
 
 export interface ReqUserBill {
-  month: string;
+  month?: string;
   userId: number;
   type?: number;
   payType?: number;

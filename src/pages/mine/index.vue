@@ -13,11 +13,11 @@
       <view class="mb-[40rpx] flex items-center">
         <image
           class="mr-[24rpx] h-[120rpx] w-[120rpx] flex-shrink-0 rounded-full"
-          src="/static/avatar.png"
+          :src="avatarUrl"
           mode="aspectFill"
         />
         <view class="flex flex-col">
-          <view class="mb-[8rpx] flex items-center">
+          <view class="mb-[8rpx] flex items-center" @click="openEditDialog">
             <text class="mr-[12rpx] text-[36rpx] font-600 text-[#333]">{{ nickname }}</text>
             <text class="text-[28rpx]">✏️</text>
           </view>
@@ -28,16 +28,12 @@
       <!-- 统计数据 -->
       <view class="flex justify-around pb-[10rpx] pt-[20rpx]">
         <view class="flex flex-col items-center">
-          <text class="mb-[8rpx] text-[44rpx] font-700 text-[#333]">382</text>
+          <text class="mb-[8rpx] text-[44rpx] font-700 text-[#333]">{{ billCount }}</text>
           <text class="text-[22rpx] text-[#999]">记账总笔数</text>
         </view>
         <view class="flex flex-col items-center">
-          <text class="mb-[8rpx] text-[44rpx] font-700 text-[#333]">90</text>
+          <text class="mb-[8rpx] text-[44rpx] font-700 text-[#333]">{{ accountingDates }}</text>
           <text class="text-[22rpx] text-[#999]">记账总天数</text>
-        </view>
-        <view class="flex flex-col items-center">
-          <text class="mb-[8rpx] text-[44rpx] font-700 text-[#333]">3</text>
-          <text class="text-[22rpx] text-[#999]">账本数量</text>
         </view>
       </view>
     </view>
@@ -69,6 +65,49 @@
       </view>
     </view>
 
+    <view v-if="isEditDialogVisible" class="fixed inset-0 z-1000 flex items-center justify-center bg-black/45 px-[36rpx]" @click="closeEditDialog">
+      <view class="w-full rounded-[16rpx] bg-white px-[30rpx] pb-[30rpx] pt-[28rpx]" @click.stop>
+        <view class="flex items-center justify-between">
+          <text class="text-[32rpx] text-[#333] font-700">编辑个人信息</text>
+          <text class="text-[40rpx] text-[#a6acbb] font-300 leading-none" @click="closeEditDialog">×</text>
+        </view>
+
+        <view class="mt-[28rpx]">
+          <view class="mb-[24rpx] flex flex-col items-center">
+            <view class="relative" @click="chooseAvatar">
+              <image class="h-[132rpx] w-[132rpx] rounded-full" :src="avatarPreview" mode="aspectFill" />
+              <view class="absolute bottom-0 right-0 h-[38rpx] w-[38rpx] flex items-center justify-center rounded-full bg-[#4264f4] text-[22rpx] text-white">
+                ✎
+              </view>
+            </view>
+            <text class="mt-[10rpx] text-[21rpx] text-[#9aa2b8]">点击更换头像</text>
+          </view>
+
+          <view class="mb-[20rpx]">
+            <text class="text-[24rpx] text-[#69728e] font-700">用户名</text>
+            <input v-model="editForm.username" class="mt-[10rpx] h-[76rpx] box-border rounded-[8rpx] bg-[#f6f7fb] px-[20rpx] text-[26rpx] text-[#333]" placeholder="请输入用户名" />
+          </view>
+          <view class="mb-[20rpx]">
+            <text class="text-[24rpx] text-[#69728e] font-700">昵称</text>
+            <input v-model="editForm.nickname" class="mt-[10rpx] h-[76rpx] box-border rounded-[8rpx] bg-[#f6f7fb] px-[20rpx] text-[26rpx] text-[#333]" placeholder="请输入昵称" maxlength="20" />
+          </view>
+          <view class="mb-[20rpx]">
+            <text class="text-[24rpx] text-[#69728e] font-700">邮箱</text>
+            <input v-model="editForm.email" class="mt-[10rpx] h-[76rpx] box-border rounded-[8rpx] bg-[#f6f7fb] px-[20rpx] text-[26rpx] text-[#333]" type="text" placeholder="请输入邮箱" />
+          </view>
+          <view>
+            <text class="text-[24rpx] text-[#69728e] font-700">手机号</text>
+            <input v-model="editForm.phone" class="mt-[10rpx] h-[76rpx] box-border rounded-[8rpx] bg-[#f6f7fb] px-[20rpx] text-[26rpx] text-[#333]" type="number" placeholder="请输入手机号" maxlength="11" />
+          </view>
+        </view>
+
+        <view class="mt-[32rpx] flex gap-[18rpx]">
+          <button class="h-[78rpx] flex-1 border-0 rounded-[8rpx] bg-[#f1f3f8] text-[27rpx] text-[#69728e] leading-[78rpx] after:border-0" @click="closeEditDialog">取消</button>
+          <button class="h-[78rpx] flex-1 border-0 rounded-[8rpx] bg-[#4264f4] text-[27rpx] text-white leading-[78rpx] after:border-0" :loading="isSaving" :disabled="isSaving" @click="saveUserInfo">保存</button>
+        </view>
+      </view>
+    </view>
+
     <TabBar :active="3" />
   </view>
 </template>
@@ -76,16 +115,173 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
+import { ApiPutUserInfo, type ReqUpdateUserInfo } from "@/api/user";
 import TabBar from "@/components/TabBar.vue";
+import { readImageAsBase64DataUrl } from "@/utils/file";
 
+type StoredUserInfo = {
+  id?: number;
+  username?: string;
+  nickname?: string;
+  email?: string;
+  phone?: string;
+  userPic?: string;
+  user_pic?: string;
+  billCount?: number;
+  accountingDates?: number;
+};
+
+type EditUserForm = Pick<ReqUpdateUserInfo, "username" | "nickname" | "email" | "phone" | "userPic">;
+
+const defaultAvatar = "/static/avatar.png";
 const nickname = ref("暂无昵称");
+const billCount = ref(0);
+const accountingDates = ref(0);
+const avatarUrl = ref(defaultAvatar);
+const userInfo = ref<StoredUserInfo>({});
+const isEditDialogVisible = ref(false);
+const isSaving = ref(false);
+const editForm = ref<EditUserForm>({
+  username: "",
+  nickname: "",
+  email: "",
+  phone: "",
+});
 
 const refreshUserInfo = () => {
-  const userInfo = uni.getStorageSync("userInfo");
-  const nextNickname =
-    userInfo && typeof userInfo === "object" ? String(userInfo.nickname || "") : "";
+  const storedValue = uni.getStorageSync("userInfo") as StoredUserInfo | string | "";
+  let parsedUserInfo: StoredUserInfo = {};
+  if (typeof storedValue === "string") {
+    try {
+      parsedUserInfo = JSON.parse(storedValue) as StoredUserInfo;
+    } catch {
+      parsedUserInfo = {};
+    }
+  } else if (storedValue && typeof storedValue === "object") {
+    parsedUserInfo = storedValue;
+  }
+
+  userInfo.value = parsedUserInfo;
+  const nextNickname = String(parsedUserInfo.nickname || "");
 
   nickname.value = nextNickname.trim() || "暂无昵称";
+  billCount.value = Number(parsedUserInfo.billCount) || 0;
+  accountingDates.value = Number(parsedUserInfo.accountingDates) || 0;
+  avatarUrl.value = getUserPic(parsedUserInfo) || defaultAvatar;
+};
+
+const avatarPreview = ref(defaultAvatar);
+
+const getUserPic = (info: StoredUserInfo) =>
+  String(info.userPic || info.user_pic || "").trim();
+
+const openEditDialog = () => {
+  editForm.value = {
+    username: userInfo.value.username || "",
+    nickname: userInfo.value.nickname || "",
+    email: userInfo.value.email || "",
+    phone: userInfo.value.phone || "",
+    userPic: getUserPic(userInfo.value),
+  };
+  avatarPreview.value = getUserPic(userInfo.value) || defaultAvatar;
+  isEditDialogVisible.value = true;
+};
+
+const chooseAvatar = () => {
+  if (isSaving.value) return;
+  uni.chooseImage({
+    count: 1,
+    sizeType: ["compressed"],
+    success: ({ tempFilePaths }) => {
+      const filePath = tempFilePaths?.[0];
+      if (!filePath) return;
+      avatarPreview.value = filePath;
+      editForm.value.userPic = filePath;
+    },
+  });
+};
+
+const closeEditDialog = () => {
+  if (isSaving.value) return;
+  isEditDialogVisible.value = false;
+};
+
+const getErrorMessage = (error: unknown) => {
+  if (!error || typeof error !== "object") return "";
+  const value = error as {
+    message?: unknown;
+    msg?: unknown;
+    response?: { data?: { message?: unknown; msg?: unknown } };
+  };
+  return String(
+    value.message
+      || value.msg
+      || value.response?.data?.message
+      || value.response?.data?.msg
+      || "",
+  ).trim();
+};
+
+const saveUserInfo = async () => {
+  const id = Number(userInfo.value.id) || 0;
+  if (!id) {
+    uni.showToast({ title: "用户信息不存在", icon: "none" });
+    return;
+  }
+  const nicknameValue = editForm.value.nickname?.trim() || "";
+  if (!nicknameValue) {
+    uni.showToast({ title: "请输入昵称", icon: "none" });
+    return;
+  }
+  if (isSaving.value) return;
+
+  isSaving.value = true;
+  uni.showLoading({ title: "保存中...", mask: true });
+  try {
+    const updateData: ReqUpdateUserInfo = {
+      id,
+      username: editForm.value.username?.trim() || undefined,
+      nickname: nicknameValue,
+      email: editForm.value.email?.trim() || undefined,
+      phone: editForm.value.phone?.trim() || undefined,
+    };
+    if (editForm.value.userPic && editForm.value.userPic !== getUserPic(userInfo.value)) {
+      updateData.userPic = await readImageAsBase64DataUrl(editForm.value.userPic);
+    }
+    const res = await ApiPutUserInfo(updateData);
+    uni.hideLoading();
+    if (res.code !== 200) {
+      uni.showToast({
+        title: res.message || res.msg || "保存失败，请稍后重试",
+        icon: "none",
+      });
+      return;
+    }
+
+    const nextUserInfo: StoredUserInfo = {
+      ...userInfo.value,
+      ...updateData,
+      nickname: nicknameValue,
+    };
+    if (updateData.userPic) {
+      nextUserInfo.userPic = updateData.userPic;
+      nextUserInfo.user_pic = updateData.userPic;
+    }
+    delete nextUserInfo.id;
+    nextUserInfo.id = id;
+    uni.setStorageSync("userInfo", nextUserInfo);
+    isEditDialogVisible.value = false;
+    refreshUserInfo();
+    uni.showToast({ title: "保存成功", icon: "success" });
+  } catch (error) {
+    uni.hideLoading();
+    uni.showToast({
+      title: getErrorMessage(error) || "保存失败，请稍后重试",
+      icon: "none",
+    });
+  } finally {
+    isSaving.value = false;
+  }
 };
 
 onShow(() => {
@@ -93,12 +289,6 @@ onShow(() => {
 });
 
 const menuList = [
-  { title: "协作成员", icon: "💎", bgColor: "#e8f0fe", extra: "4位协作成员" },
-  { title: "邀请好友", icon: "📩", bgColor: "#fef3e0", extra: "" },
-  { title: "记账提醒", icon: "⏰", bgColor: "#fce4ec", extra: "" },
-  { title: "意见反馈", icon: "💬", bgColor: "#e0f7f0", extra: "" },
-  { title: "关于我们", icon: "👥", bgColor: "#fce4ec", extra: "" },
-  { title: "设置", icon: "⚙️", bgColor: "#f3e8ff", extra: "" },
   { title: "退出登录", icon: "🚪", bgColor: "#fee2e2", extra: "" },
 ];
 
