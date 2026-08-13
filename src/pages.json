@@ -38,6 +38,13 @@
       }
     },
     {
+      "path": "pages/category-detail/index",
+      "style": {
+        "navigationBarTitleText": "分类详情",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/mine/index",
       "style": {
         "navigationBarTitleText": "我的"

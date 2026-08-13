@@ -109,6 +109,8 @@
                         v-for="item in panel.categories.slice(0, 5)"
                         :key="item.id"
                         class="mb-[18rpx] flex items-center last:mb-0"
+                        hover-class="bg-[#f7f8fc]"
+                        @click="openCategoryDetail(panel, item)"
                       >
                         <view :class="['h-[14rpx] w-[14rpx] flex-none rounded-full', item.colorClass]" />
                         <view class="ml-[12rpx] min-w-0 flex-1 truncate text-[23rpx] text-[#606a83] font-700">{{ item.name }}</view>
@@ -167,13 +169,15 @@
               {{ activeCategoryPanel.emptyText }}
             </view>
 
-            <view v-else class="mt-[20rpx]">
+            <view v-else class="mt-[26rpx]">
               <view
                 v-for="item in overviewItems"
                 :key="item.label"
-                class="mb-[22rpx] flex items-center last:mb-0"
+                class="mb-[30rpx] min-h-[86rpx] flex items-center last:mb-0"
+                hover-class="bg-[#f7f8fc]"
+                @click="openCategoryDetail(activeCategoryPanel, item.category)"
               >
-                <view :class="['h-[58rpx] w-[58rpx] flex flex-none items-center justify-center rounded-full text-[25rpx] font-800', item.iconClass]">
+                <view :class="['h-[68rpx] w-[68rpx] flex flex-none items-center justify-center rounded-full text-[27rpx] font-800', item.iconClass]">
                   {{ item.icon }}
                 </view>
                 <view class="ml-[16rpx] min-w-0 flex-1">
@@ -185,7 +189,7 @@
                       <text class="ml-[12rpx] text-[30rpx] text-[#a0a7b8] font-300 leading-none">›</text>
                     </view>
                   </view>
-                  <view class="mt-[10rpx] h-[10rpx] overflow-hidden rounded-full bg-[#edf0f8]">
+                  <view class="mt-[14rpx] h-[12rpx] overflow-hidden rounded-full bg-[#edf0f8]">
                     <view :class="['h-full rounded-full', item.barClass, item.widthClass]" />
                   </view>
                 </view>
@@ -219,6 +223,20 @@ type CategoryStat = {
   ratio: number;
   color: string;
   colorClass: string;
+};
+type CategoryPanel = {
+  key: "expense" | "income";
+  title: string;
+  overviewTitle: string;
+  description: string;
+  totalText: string;
+  totalClass: string;
+  compactTotal: string;
+  centerLabel: string;
+  emptyText: string;
+  canvasId: string;
+  categories: CategoryStat[];
+  chartData: { series: Array<{ name: string; data: number; color: string }> };
 };
 
 const chartColors = ["#4264f4", "#64d8cb", "#ffca57", "#ff6b8f", "#8f7cf6", "#55a9f8", "#9ed766"];
@@ -378,7 +396,7 @@ const createCategoryChartData = (categories: CategoryStat[]) => ({
     color: item.color,
   })),
 });
-const categoryPanels = computed(() => [
+const categoryPanels = computed<CategoryPanel[]>(() => [
   {
     key: "expense",
     title: "大类支出",
@@ -438,6 +456,7 @@ const summaryMetrics = computed(() => [
 ]);
 const activeCategoryPanel = computed(() => categoryPanels.value[activeCategorySlide.value] || categoryPanels.value[0]);
 const overviewItems = computed(() => activeCategoryPanel.value.categories.map((item) => ({
+  category: item,
   label: item.name,
   value: item.amountText,
   ratio: item.ratio,
@@ -451,6 +470,12 @@ const overviewItems = computed(() => activeCategoryPanel.value.categories.map((i
   barClass: activeCategorySlide.value === 0 ? "bg-[#4264f4]" : "bg-[#ff6b93]",
   widthClass: getWidthClass(item.ratio),
 })));
+
+const openCategoryDetail = (panel: CategoryPanel, category: CategoryStat) => {
+  uni.navigateTo({
+    url: `/pages/category-detail/index?categoryId=${category.id}&type=${panel.key === "income" ? 1 : 2}&month=${selectedMonth.value}&name=${encodeURIComponent(category.name)}`,
+  });
+};
 
 const loadStatistics = async (showLoading = true) => {
   const userId = getUserId();
